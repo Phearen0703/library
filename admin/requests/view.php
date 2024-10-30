@@ -84,13 +84,6 @@ $details = $conn->query($query);
                     </div>
                     <hr>
 
-                    <div class="bg-white p-4 rounded">
-                        <div class="m-1 p-1">ប្រភព</div>
-                        <?php if($detail->BSource <> "") { ?>
-                        <span class="badge bg-primary rounded-pill fs-6"><?php echo $detail->BSource ?></span>
-                        <?php } ?>
-                    </div>
-                    <hr>
 
                     <div class="bg-white p-4 rounded">
                         <div class="m-1 p-1">ភាសា</div>
@@ -140,13 +133,7 @@ $details = $conn->query($query);
                     </div>
                     <hr>
 
-                    <div class="bg-white p-4 rounded">
-                        <div class="m-1 p-1">តម្លៃ</div>
-                        <?php if($detail->BPrice <> "") { ?>
-                        <span class="badge bg-primary rounded-pill fs-6"><?php echo $detail->BPrice ?></span>
-                        <?php } ?>
-                    </div>
-                    <hr>
+
 
                     <div class="bg-white p-4 rounded">
                         <div class="m-1 p-1">កូដ</div>

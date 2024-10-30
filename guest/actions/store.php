@@ -6,6 +6,7 @@ if (isset($_POST['myOrder']) && isset($_POST['myOrderIndex'])) {
     // Decode the JSON order data
     $myOrder = (array) json_decode($_POST['myOrder']);
 
+
     // Initialize variables
     $BorrowCode = time();
     $GuestID = $_SESSION['user_id'];
@@ -26,10 +27,10 @@ if (isset($_POST['myOrder']) && isset($_POST['myOrderIndex'])) {
 
     // Loop through orders and insert them into the database
     foreach ($myOrder as $orderGroup) {
-        foreach ($orderGroup as $orderItem) {
+
             // Accessing order details
-            $book_id = $orderItem->book_id;
-            $quantity = $orderItem->quantity;
+            $book_id = $orderGroup->book_id;
+            $quantity = $orderGroup->quantity;
 
             // Insert order into database
             $insertQuery = "INSERT INTO tblborrow (GuestID, BookID, DateBorrowed, BorrowCode, FullBorrowCode, Quantity, YearCode) 
@@ -42,9 +43,9 @@ if (isset($_POST['myOrder']) && isset($_POST['myOrderIndex'])) {
             if (!$borrow) {
                 $success = false;
                 echo "Error: " . $conn->error; // For debugging purposes
-                break 2; // Break out of both loops on error
+               
             }
-        }
+        
     }
 
     // Handle success or error message after the loop

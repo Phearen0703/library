@@ -276,10 +276,10 @@
 
 
 <!-- Button trigger modal -->
-        <!-- <a href="#" class="btn position-fixed bottom-0 end-0 mb-3 me-3" data-bs-toggle="modal"
+        <a href="#" class="btn position-fixed bottom-0 end-0 mb-3 me-3" data-bs-toggle="modal"
             data-bs-target="#staticBackdrop" style="background-color: #ff7c89; padding: 10px;">
                     មើលសៀវភៅដែលបានជ្រើសរើស
-        </a> -->
+        </a>
 
 
 
@@ -327,15 +327,15 @@ function selectSubcategory(subCatId) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Modal and Cart button elements
+    // Modal and card button elements
     const bookModal = document.getElementById('bookModal');
-    const cartButton = document.getElementById('cartButton'); // Cart button outside modal
-    const addToCartForm = document.getElementById('add-to-cart-form'); // Form for adding to cart
-    const addToCartBtn = document.getElementById('add-to-cart-btn'); // Add to Cart button inside modal
+    const cardButton = document.getElementById('cardButton'); // card button outside modal
+    const addTocardForm = document.getElementById('add-to-card-form'); // Form for adding to card
+    const addTocardBtn = document.getElementById('add-to-card-btn'); // Add to card button inside modal
 
-    // Check if the cart button should be visible on page load (based on localStorage)
-    if (localStorage.getItem('bookInCart') === 'true') {
-        cartButton.style.display = 'block';
+    // Check if the card button should be visible on page load (based on localStorage)
+    if (localStorage.getItem('bookIncard') === 'true') {
+        cardButton.style.display = 'block';
     }
 
     // Event listener to populate modal when it's triggered
@@ -365,45 +365,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modal-book-cover').src = bookCover; // Assuming this is an img element
     });
 
-    // Event listener for the Add to Cart button inside the modal
-    // addToCartForm.addEventListener('submit', function(event) {
-    //     event.preventDefault(); // Prevent default form submission
-
-    //     // Log form data for debugging
-    //     console.log('Form data:', {
-    //         book_id: document.getElementById('modal-book-id').value,
-    //         book_title: document.getElementById('modal-book-title').value,
-    //         book_author: document.getElementById('modal-book-author').value,
-    //         book_lang: document.getElementById('modal-book-lang').value,
-    //         book_source: document.getElementById('modal-book-source').value,
-    //         book_published: document.getElementById('modal-book-published').value,
-    //         book_fullcode: document.getElementById('modal-book-fullcode').value,
-    //         book_page: document.getElementById('modal-book-page').value,
-    //     });
-
-    //     // Submit the form data using Fetch API (if you prefer AJAX)
-    //     fetch(addToCartForm.action, {
-    //         method: 'POST',
-    //         body: new FormData(addToCartForm),
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log('Success:', data);
-    //         if (data.success) {
-    //             cartButton.style.display = 'block'; // Show the Cart button
-    //             localStorage.setItem('bookInCart', 'true'); // Save cart state in localStorage
-    //             document.getElementById('cart-message').innerText = "Book added to cart successfully!";
-    //         } else {
-    //             // Handle errors here
-    //             console.error('Error adding book to cart:', data.message);
-    //             document.getElementById('cart-message').innerText = "Failed to add book to cart.";
-    //         }
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error:', error);
-    //         document.getElementById('cart-message').innerText = "An error occurred.";
-    //     });
-    // });
 });
 </script>
 
@@ -422,17 +383,17 @@ function findBookIndex($orders, $book_id) {
     return -1;
 }
 
-// Initialize the cart if it doesn't exist
+// Initialize the card if it doesn't exist
 if (!isset($_SESSION['orders']) || !is_array($_SESSION['orders'])) {
     $_SESSION['orders'] = [];
 }
 
 // Define messages
 $messages = [
-    'added' => 'Book added to cart.',
+    'added' => 'Book added to card.',
     'decreased' => 'Book quantity decreased.',
-    'removed' => 'Book removed from cart.',
-    'not_found' => 'Book not found in cart.',
+    'removed' => 'Book removed from card.',
+    'not_found' => 'Book not found in card.',
 ];
 
 // Handle POST requests for adding, decreasing, or deleting books
@@ -440,7 +401,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Sanitize input to prevent XSS and other issues
     $book_id = isset($_POST['book_id']) ? htmlspecialchars($_POST['book_id']) : null;
 
-    // Add a book to the cart
+    // Add a book to the card
     if ($book_id) {
         $bookIndex = findBookIndex($_SESSION['orders'], $book_id);
         if ($bookIndex >= 0) {
@@ -473,7 +434,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Delete a book completely from the cart
+    // Delete a book completely from the card
     if (isset($_POST['delete_book_id'])) {
         $delete_book_id = htmlspecialchars($_POST['delete_book_id']);
         $bookIndex = findBookIndex($_SESSION['orders'], $delete_book_id);
@@ -494,8 +455,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 
 
-<!-- Extra Large Modal Structure -->
 
+<!-- Add to card Modal Form -->
 <div class="modal fade" id="bookModal" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -504,12 +465,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <img id="modal-book-cover" src="" alt="Book Cover" class="img-fluid">
-                    </div>
-                    <div class="col-md-8">
-                        <form id="bookForm" action="<?php echo $burl . "/guest/index.php" ?>" method="POST">
+                <form id="add-to-card-form" action="<?php echo $burl . '/guest/actions/add_to_card.php'; ?>" method="POST">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img id="modal-book-cover" src="" alt="Book Cover" class="img-fluid">
+                        </div>
+                        <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="modal-book-title" class="form-label"><strong>ចំណងជើងសៀវភៅ / ឯកសារ:</strong></label>
                                 <input type="text" class="form-control" id="modal-book-title" name="book_title" required>
@@ -546,54 +507,72 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <label for="modal-book-fullcode" class="form-label"><strong>លេខកូដសៀវភៅ:</strong></label>
                                 <input type="text" class="form-control" id="modal-book-fullcode" name="book_fullcode" required>
                             </div>
-
-                        </form>
-
-
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <form id="add-to-cart-form" action="" method="POST">
-                    <input type="hidden" name="book_id" id="modal-book-id">
-                    <button type="submit" id="add-to-cart-btn" class="btn btn-info">Add to Cart</button>
-                </form>
-                <!-- Div to display the success message -->
-                <div id="cart-message" class="mt-2 text-success"></div>
-            </div>
 
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-info">Add to card</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const addToCartForm = document.getElementById('add-to-cart-form');
-    const cartMessage = document.getElementById('cart-message');
-
-    if (addToCartForm) {
-        addToCartForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            const formData = new FormData(addToCartForm);
-
-            // Send the form data using fetch or XMLHttpRequest
-            fetch('<?php echo $burl . "/guest/index.php"; ?>', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                // Show success message in the cart-message div
-                cartMessage.textContent = 'Book added to cart successfully!';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                cartMessage.textContent = 'Error adding book to cart.';
-            });
-        });
-    }
+//    <!-- JavaScript for handling Add to card form submission -->
+document.getElementById('add-to-card-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(document.getElementById('bookForm'));
+    fetch('/library/guest/actions/add_to_card.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('card-message').innerText = data.message;
+            loadcardItems(); // Update card items in modal
+            document.getElementById('view-selected-books').classList.remove('d-none'); // Show button if hidden
+        } else {
+            document.getElementById('card-message').innerText = data.message;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 });
+
+function loadcardItems() {
+    fetch('<?php echo $burl . '/guest/actions/add_to_card.php'; ?>') // Create this file to load session data
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.getElementById('order-items');
+        tbody.innerHTML = ''; // Clear existing items
+        data.orders.forEach((order, index) => {
+            const row = `<tr data-book-id="${order.book_id}">
+                            <td><button class="btn btn-danger btn-sm delete-item"><i class="fa-solid fa-trash"></i></button></td>
+                            <td>${index + 1}</td>
+                            <td>${order.book_title}</td>
+                            <td>${order.book_author}</td>
+                            <td>${order.book_lang}</td>
+                            <td>${order.book_source}</td>
+                            <td>${order.book_published}</td>
+                            <td>${order.book_page}</td>
+                            <td>${order.book_fullcode}</td>
+                            <td><button class="btn btn-danger btn-sm decrease-qty">-</button>
+                                <span>${order.quantity}</span>
+                                <button class="btn btn-success btn-sm increase-qty">+</button>
+                            </td>
+                        </tr>`;
+            tbody.innerHTML += row;
+        });
+    })
+    .catch(error => console.error('Error loading card items:', error));
+}
+
 // Function to open the modal with book details
 function openBookModal(book) {
     document.getElementById('modal-book-cover').src = book.cover; // Set book cover image
@@ -646,63 +625,43 @@ function openBookModal(book) {
                             <?php
                             if (!empty($_SESSION['orders'])) {
                                 $i = 1;
-                                foreach ($_SESSION['orders'] as $key => $orderGroup) {
-                                    foreach ($orderGroup as $orderitem) {
-                                        if (isset($orderitem['book_id'])) {
-                                            $book_id = $orderitem['book_id'];
+                                foreach ($_SESSION['orders'] as $orderitem) {
+                                    if (isset($orderitem['book_id'])) {
+                                        $book_id = $orderitem['book_id'];
+                                        $getBook = $conn->query("SELECT tblbook.*, tbllanguage.LangName AS Blang
+                                            FROM tblbook
+                                            INNER JOIN tbllanguage ON tblbook.LangID = tbllanguage.LangID
+                                            WHERE tblbook.BookID = '$book_id'")->fetch_object();
 
-                                            // Fetch book details from the database
-                                            $getBook = $conn->query("SELECT tblbook.*, tbllanguage.LangName AS Blang
-                                                FROM tblbook
-                                                INNER JOIN tbllanguage ON tblbook.LangID = tbllanguage.LangID
-                                                WHERE tblbook.BookID = '$book_id'")->fetch_object();
-                                            
-                                            if ($getBook) {
+                                        if ($getBook) {
                             ?>
-                                                <tr data-book-id="<?php echo $book_id; ?>" data-stock="<?php echo $getBook->BStock; ?>">
+                                            <tr data-book-id="<?php echo $book_id; ?>" data-stock="<?php echo $getBook->BStock; ?>">
                                                 <input type="hidden" name="book_id" value='<?php echo htmlspecialchars($getBook->BookID); ?>'>
-                                                <input type="hidden" name="role_id" value='<?php echo htmlspecialchars($getBook->RoleID); ?>'>
-                                                    <td>
-                                                        <button class="btn btn-danger btn-sm delete-item" title="Remove from cart">
-                                                            <i class="fa-solid fa-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                    <td><?php echo $i++; ?></td>
-                                                    <td><?php echo htmlspecialchars($getBook->BTitle); ?></td>
-                                                    <td><?php echo htmlspecialchars($getBook->BAuthor); ?></td>
-                                                    <td><?php echo htmlspecialchars($getBook->Blang); ?></td>
-                                                    <td><?php echo htmlspecialchars($getBook->BSource); ?></td>
-                                                    <td><?php echo htmlspecialchars($getBook->BPublished); ?></td>
-                                                    <td><?php echo htmlspecialchars($getBook->BPage); ?></td>
-                                                    <td><?php echo htmlspecialchars($getBook->FullCode);; ?></td>
-                                                    <td>
-                                                        <div class="row">
-                                                            <div class="col text-end">
-                                                                <button class="btn btn-danger btn-sm decrease-qty" <?php echo ($orderitem['quantity'] <= 1) ? 'disabled' : ''; ?>>-</button>
-                                                                <span><?php echo $orderitem['quantity']; ?></span>
-                                                                <button class="btn btn-success btn-sm increase-qty">+</button>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                                <td><button class="btn btn-danger btn-sm delete-item" title="Remove from card"><i class="fa-solid fa-trash"></i></button></td>
+                                                <td><?php echo $i++; ?></td>
+                                                <td><?php echo htmlspecialchars($getBook->BTitle); ?></td>
+                                                <td><?php echo htmlspecialchars($getBook->BAuthor); ?></td>
+                                                <td><?php echo htmlspecialchars($getBook->Blang); ?></td>
+                                                <td><?php echo htmlspecialchars($getBook->BSource); ?></td>
+                                                <td><?php echo htmlspecialchars($getBook->BPublished); ?></td>
+                                                <td><?php echo htmlspecialchars($getBook->BPage); ?></td>
+                                                <td><?php echo htmlspecialchars($getBook->FullCode); ?></td>
+                                                <td><?php echo $orderitem['quantity']; ?></td>
+                                            </tr>
                             <?php
-                                            } else {
-                                                echo "<tr><td colspan='10'>Error: Book not found in database</td></tr>";
-                                            }
                                         } else {
-                                            echo "<tr><td colspan='10'>Error: Book ID not set in order item</td></tr>";
+                                            echo "<tr><td colspan='10'>Error: Book not found in database</td></tr>";
                                         }
+                                    } else {
+                                        echo "<tr><td colspan='10'>Error: Book ID not set in order item</td></tr>";
                                     }
                                 }
                             } else {
-                                echo "<tr><td colspan='10'>Your cart is empty</td></tr>";
-                                // Hide the button if the cart is empty
-                                echo "<script>document.getElementById('view-selected-books').classList.add('d-none');</script>";
+                                echo "<tr><td colspan='10'>Your card is empty</td></tr>";
                             }
-
-                            
                             ?>
                         </tbody>
+
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -717,90 +676,51 @@ function openBookModal(book) {
 
 <script>
 $(document).ready(function() {
-    // Function to update button visibility based on the cart items
-    function updateCartButtonVisibility() {
-        const viewButton = $('#view-selected-books');
-        const orderItemsCount = $('#order-items tr').length; // Count rows excluding header
-
-        if (orderItemsCount > 1) { // More than 1 means there are items (1 for the header)
-            viewButton.removeClass('d-none');
-        } else {
-            viewButton.addClass('d-none');
-        }
+    function updatecardButtonVisibility() {
+        console.log("Checking card button visibility...");
+        $.getJSON('<?php echo $burl . "/guest/actions/check_card.php"; ?>', function(response) {
+            console.log("card check response:", response);
+            if (response.cardHasItems) {
+                $('#view-selected-books').removeClass('d-none');
+            } else {
+                $('#view-selected-books').addClass('d-none');
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.error("AJAX error:", textStatus, errorThrown);
+        });
     }
 
-    // Increase Quantity
-    $('#order-items').on('click', '.increase-qty', function(e) {
-        e.preventDefault();
-        var row = $(this).closest('tr');
-        var bookId = row.data('book-id');
-        
-        var quantityElement = row.find('span');
-        var currentQuantity = parseInt(quantityElement.text());
-        var stock = row.data('stock'); // Available stock
-
-        if (currentQuantity < stock) {
-            $.post('<?php echo $burl . "/guest/actions/handle_view_modal.php"; ?>', 
-            { action: 'increase', book_id: bookId }, 
-            function(response) {
-                if (response.success) {
-                    var newQuantity = currentQuantity + 1;
-                    quantityElement.text(newQuantity);
-                    row.find('.decrease-qty').prop('disabled', false);
-                    updateCartButtonVisibility(); // Update visibility of the view button
-                } else {
-                    alert(response.message);
-                }
-            }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
-                console.error("AJAX error:", textStatus, errorThrown);
-            });
-        } else {
-            $('#alertMessage').text("ចំនួនសៀវភៅក្នងបណ្ណាល័យមិនគ្រប់គ្រាន់");
-            $('#customAlert').modal('show'); // Show alert modal
-        }
-    });
-
-    // Decrease Quantity
-    $('#order-items').on('click', '.decrease-qty', function(e) {
-        e.preventDefault();
-        var row = $(this).closest('tr');
-        var bookId = row.data('book-id');
-        
-        var quantityElement = row.find('span');
-        var currentQuantity = parseInt(quantityElement.text());
-
-        if (currentQuantity > 1) {
-            $.post('<?php echo $burl . "/guest/actions/handle_view_modal.php"; ?>', 
-            { action: 'decrease', book_id: bookId }, 
-            function(response) {
-                if (response.success) {
-                    var newQuantity = currentQuantity - 1;
-                    quantityElement.text(newQuantity);
-                    if (newQuantity <= 1) {
-                        row.find('.decrease-qty').prop('disabled', true);
-                    }
-                    updateCartButtonVisibility(); // Update visibility of the view button
-                } else {
-                    alert(response.message);
-                }
-            }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
-                console.error("AJAX error:", textStatus, errorThrown);
-            });
-        }
-    });
+    // Function to handle adding to card
+    function addTocard(bookId) {
+        console.log("Adding to card, Book ID:", bookId);
+        $.post('<?php echo $burl . "/guest/actions/update_card.php"; ?>', 
+        { action: 'add', book_id: bookId }, 
+        function(response) {
+            console.log("Add to card response:", response);
+            if (response.success) {
+                updatecardButtonVisibility(); // Update button visibility after adding item
+            } else {
+                alert(response.message);
+            }
+        }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
+            console.error("AJAX error:", textStatus, errorThrown);
+        });
+    }
 
     // Delete Item
     $('#order-items').on('click', '.delete-item', function(e) {
         e.preventDefault();
-        var row = $(this).closest('tr');
-        var bookId = row.data('book-id');
+        const row = $(this).closest('tr');
+        const bookId = row.data('book-id');
+        console.log("Deleting item, Book ID:", bookId);
 
-        $.post('<?php echo $burl . "/guest/actions/handle_view_modal.php"; ?>', 
+        $.post('<?php echo $burl . "/guest/actions/update_card.php"; ?>', 
         { action: 'delete', book_id: bookId }, 
         function(response) {
+            console.log("Delete item response:", response);
             if (response.success) {
-                row.remove();
-                updateCartButtonVisibility(); // Update visibility of the view button
+                row.remove(); // Remove the row from DOM
+                updatecardButtonVisibility(); // Update visibility after item removal
             } else {
                 alert(response.message);
             }
@@ -809,10 +729,15 @@ $(document).ready(function() {
         });
     });
 
-    // Initial visibility check for the cart button
-    updateCartButtonVisibility();
+    // Initial visibility check for the card button
+    updatecardButtonVisibility();
 });
+
+
 </script>
+
+
+
 
 
 

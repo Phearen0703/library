@@ -8,10 +8,10 @@
 
 <?php
     // Query to get all borrow requests along with book titles and user details
-    $request = $conn->query("SELECT tblborrow.*, tblbook.BTitle, tblbook.FullCode, tbluser.FirstName, tbluser.LastName
+    $request = $conn->query("SELECT tblborrow.*, tblbook.BTitle, tblbook.FullCode, tblguest.FirstName, tblguest.LastName
         FROM tblborrow
         LEFT JOIN tblbook ON tblbook.BookID = tblborrow.BookID
-        LEFT JOIN tbluser ON tbluser.UserID = tblborrow.GuestID
+        LEFT JOIN tblguest ON tblguest.GuestID = tblborrow.GuestID
         WHERE tblborrow.RoleID IS NULL");
 ?>
 
@@ -46,7 +46,7 @@
                                     </p>
 
                                     <p class="card-text">
-                                        <small class="text-muted">អ្នកស្នើសុំ ៖ <?php echo htmlspecialchars($previousFirstName . " " . $previousLastName); ?></small><br>
+                                        <small class="text-muted">អ្នកស្នើសុំ ៖ <?php echo htmlspecialchars($previousLastName . " " . $previousFirstName); ?></small><br>
                                         <small class="text-muted"><?php echo htmlspecialchars($previousDateBorrowed); ?></small>
                                     </p>
                                 </div>
@@ -69,8 +69,8 @@
             // Store the current BorrowCode data for the next iteration
             $previousBorrowCode = $requests->BorrowCode;
             $previousBorrowID = $requests->BorrowCode;
-            $previousFirstName = $requests->FirstName;
             $previousLastName = $requests->LastName;
+            $previousFirstName = $requests->FirstName;
             $previousDateBorrowed = $requests->DateBorrowed;
         }
 
@@ -92,7 +92,7 @@
                                 </p>
 
                                 <p class="card-text">
-                                    <small class="text-muted">អ្នកស្នើសុំ ៖ <?php echo htmlspecialchars($previousFirstName . " " . $previousLastName); ?></small><br>
+                                    <small class="text-muted">អ្នកស្នើសុំ ៖ <?php echo htmlspecialchars($previousLastName . " " . $previousFirstName); ?></small><br>
                                     <small class="text-muted">កាលបរិច្ឆេទ ៖ <?php echo htmlspecialchars($previousDateBorrowed); ?></small>
                                 </p>
                             </div>

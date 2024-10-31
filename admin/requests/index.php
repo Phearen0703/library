@@ -23,6 +23,9 @@
     </div>
 
     <div class="container-fluid mt-3">
+
+    <?php include($_SERVER['DOCUMENT_ROOT']."/library/admin/layouts/sms.php");?>
+
         <?php
         $previousBorrowCode = null;  // Store the previous BorrowCode
         $bookTitles = [];  // Array to accumulate book titles for the same BorrowCode

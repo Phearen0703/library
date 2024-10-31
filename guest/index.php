@@ -9,9 +9,7 @@
     protect_guest_folder();
     
     
-    
 
-    echo $_SESSION['user_id'];
 
     // Fetch categories
     $categoryQuery = "SELECT * FROM tblcategory";
@@ -276,18 +274,19 @@
 
 
 <!-- Button trigger modal -->
-        <a href="#" class="btn position-fixed bottom-0 end-0 mb-3 me-3" data-bs-toggle="modal"
+        <!-- <a href="#" class="btn position-fixed bottom-0 end-0 mb-3 me-3" data-bs-toggle="modal"
             data-bs-target="#staticBackdrop" style="background-color: #ff7c89; padding: 10px;">
                     មើលសៀវភៅដែលបានជ្រើសរើស
-        </a>
+        </a> -->
 
 
 
 
 
         <!-- Button to view selected books, initially hidden -->
-        <a id="view-selected-books" href="#" class="btn position-fixed bottom-0 end-0 mb-3 me-3 d-none" data-bs-toggle="modal"
-        data-bs-target="#staticBackdrop" style="background-color: #ff7c89; padding: 10px;">
+        <a id="view-selected-books" href="#" class="btn position-fixed bottom-0 end-0 mb-3 me-3 d-none" 
+            data-bs-toggle="modal" data-bs-target="#staticBackdrop" 
+            style="background-color: #ff7c89; padding: 10px;">
             មើលសៀវភៅដែលបានជ្រើសរើស
         </a>
 
@@ -511,7 +510,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-info">Add to card</button>
+                        <button type="submit" class="btn btn-info">ជ្រើសរើស</button>
                     </div>
                 </form>
             </div>
@@ -521,29 +520,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 <script>
-//    <!-- JavaScript for handling Add to card form submission -->
-document.getElementById('add-to-card-btn').addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(document.getElementById('bookForm'));
-    fetch('/library/guest/actions/add_to_card.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('card-message').innerText = data.message;
-            loadcardItems(); // Update card items in modal
-            document.getElementById('view-selected-books').classList.remove('d-none'); // Show button if hidden
-        } else {
-            document.getElementById('card-message').innerText = data.message;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-});
 
 function loadcardItems() {
     fetch('<?php echo $burl . '/guest/actions/add_to_card.php'; ?>') // Create this file to load session data
@@ -675,66 +651,82 @@ function openBookModal(book) {
 
 
 <script>
-$(document).ready(function() {
-    function updatecardButtonVisibility() {
-        console.log("Checking card button visibility...");
-        $.getJSON('<?php echo $burl . "/guest/actions/check_card.php"; ?>', function(response) {
-            console.log("card check response:", response);
-            if (response.cardHasItems) {
-                $('#view-selected-books').removeClass('d-none');
-            } else {
-                $('#view-selected-books').addClass('d-none');
-            }
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("AJAX error:", textStatus, errorThrown);
-        });
-    }
+    $(document).ready(function() {
+        // Function to check cart items and update button visibility
+        function updateCartButtonVisibility() {
+            console.log("Checking cart button visibility...");
+            
+            $.getJSON('<?php echo $burl . "/guest/actions/check_card.php"; ?>', function(response) {
+                console.log("Cart check response:", response);
+                if (response.cartHasItems) {
+                    $('#view-selected-books').removeClass('d-none');
+                } else {
+                    $('#view-selected-books').addClass('d-none');
+                }
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("AJAX error:", textStatus, errorThrown);
+            });
+        }
 
-    // Function to handle adding to card
-    function addTocard(bookId) {
-        console.log("Adding to card, Book ID:", bookId);
-        $.post('<?php echo $burl . "/guest/actions/update_card.php"; ?>', 
-        { action: 'add', book_id: bookId }, 
-        function(response) {
-            console.log("Add to card response:", response);
-            if (response.success) {
-                updatecardButtonVisibility(); // Update button visibility after adding item
-            } else {
-                alert(response.message);
-            }
-        }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("AJAX error:", textStatus, errorThrown);
-        });
-    }
+        // Initial visibility check for the cart button
+        updateCartButtonVisibility();
 
-    // Delete Item
-    $('#order-items').on('click', '.delete-item', function(e) {
-        e.preventDefault();
-        const row = $(this).closest('tr');
-        const bookId = row.data('book-id');
-        console.log("Deleting item, Book ID:", bookId);
+        // Select the view-selected-books button and add a click event if it exists
+        const viewSelectedBooksButton = document.getElementById("view-selected-books");
+        
+        if (viewSelectedBooksButton) {
+            viewSelectedBooksButton.addEventListener("click", function() {
+                console.log("View selected books button clicked.");
+                // Additional code for what should happen when this button is clicked
+            });
+        } else {
+            console.warn("View-selected-books button not found in the DOM.");
+        }
 
-        $.post('<?php echo $burl . "/guest/actions/update_card.php"; ?>', 
-        { action: 'delete', book_id: bookId }, 
-        function(response) {
-            console.log("Delete item response:", response);
-            if (response.success) {
-                row.remove(); // Remove the row from DOM
-                updatecardButtonVisibility(); // Update visibility after item removal
-            } else {
-                alert(response.message);
-            }
-        }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("AJAX error:", textStatus, errorThrown);
+        // Delete Item
+        $('#order-items').on('click', '.delete-item', function(e) {
+            e.preventDefault();
+            const row = $(this).closest('tr');
+            const bookId = row.data('book-id');
+            console.log("Deleting item, Book ID:", bookId);
+
+            $.post('<?php echo $burl . "/guest/actions/update_card.php"; ?>', 
+            { action: 'delete', book_id: bookId }, 
+            function(response) {
+                console.log("Delete item response:", response);
+                if (response.success) {
+                    row.remove(); // Remove the row from DOM
+                    updateCartButtonVisibility(); // Update visibility after item removal
+                } else {
+                    alert(response.message);
+                }
+            }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("AJAX error:", textStatus, errorThrown);
+            });
         });
     });
-
-    // Initial visibility check for the card button
-    updatecardButtonVisibility();
-});
+    // ---------check my qty in card -------------
+    function addToCart(bookId) {
+    $.getJSON('<?php echo $burl . "/guest/actions/check_cart_quantity.php"; ?>', function(response) {
+        if (response.itemLimitReached) {
+            alert("You can only add up to 2 items to the cart.");
+        } else {
+            $.post('<?php echo $burl . "/guest/actions/update_card.php"; ?>', 
+            { action: 'add', book_id: bookId }, 
+            function(response) {
+                if (response.success) {
+                    updateCartButtonVisibility(); // Refresh button visibility
+                } else {
+                    alert(response.message);
+                }
+            }, 'json');
+        }
+    });
+}
 
 
 </script>
+
 
 
 

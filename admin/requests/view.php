@@ -16,24 +16,41 @@ include($_SERVER['DOCUMENT_ROOT']."/library/admin/layouts/slidebar.php");
 // Fetch detail details
 $borrow_id = $_GET['borrow_id'];
 
-$query = "SELECT 
-    b.BorrowID,  
-    bk.*,   -- Select all book details
-    u.*,   -- Select user details
-    c.CatName,   -- Category name
-    sc.SubCatName,   -- Subcategory name
-    l.LangName   -- Language name
-FROM tblborrow b  -- Alias for tblborrow
-LEFT JOIN tblbook bk ON b.BookID = bk.BookID  -- Books borrowed
-LEFT JOIN tblsubcategory sc ON bk.SubCatID = sc.SubCatID
-LEFT JOIN tblcategory c ON sc.CatID = c.CatID
-LEFT JOIN tbllanguage l ON bk.LangID = l.LangID
-LEFT JOIN tbluser u ON u.UserID = b.GuestID  -- Alias for tbluser
-WHERE b.BorrowCode = '$borrow_id'";
+        $query = "SELECT 
+        tblborrow.*,
+        tblbook.*,
+        tblguest.*,
+        tblsubcategory.SubCatName,
+        tblcategory.CatName,
+        tbllanguage.LangName
+    FROM tblborrow 
+    LEFT JOIN tblbook ON tblborrow.BookID = tblbook.BookID  
+    LEFT JOIN tblsubcategory ON tblbook.SubCatID = tblsubcategory.SubCatID
+    LEFT JOIN tblcategory ON tblsubcategory.CatID = tblcategory.CatID
+    LEFT JOIN tbllanguage ON tblbook.LangID = tbllanguage.LangID
+    LEFT JOIN tblguest ON tblguest.GuestID = tblborrow.GuestID  
+    WHERE tblborrow.BorrowCode = '$borrow_id'";
+
 
 
 
 $details = $conn->query($query);
+
+$com_del = $conn->query($query);
+
+
+// Start output buffering to capture concatenated titles
+        $firstTitle = '';
+        $lastTitle = '';
+        $count = 0;
+
+        while ($row = $com_del->fetch_object()) {
+            if ($count === 0) {
+                $firstTitle = $row->BTitle;
+            }
+            $lastTitle = $row->BTitle;
+            $count++;
+        }
 
 ?>
 
@@ -43,12 +60,24 @@ $details = $conn->query($query);
                 <i class="fa-solid fa-rotate-left"></i> Back
             </a>
             <div>
-                <a href="" class="btn btn-warning me-2">
-                <i class="fa-solid fa-xmark"></i> បដិសេធ
-                </a>
-                <a href="" class="btn btn-success">
-                <i class="fa-solid fa-check"></i> អនុម័ត
-                </a>
+            <!-- Button to open the modal -->
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                    data-bs-target="#confirmDeleteModal"
+                    data-first-title="<?php echo htmlspecialchars($firstTitle); ?>"
+                    data-last-title="<?php echo $count > 1 ? htmlspecialchars($lastTitle) : ''; ?>"
+                    data-id="<?php echo $borrow_id; ?>">
+                <i class="fa-solid fa-trash"></i> បដិសេធ
+            </button>
+
+            <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                    data-bs-target="#confirmAproveModal"
+                    data-first-title="<?php echo htmlspecialchars($firstTitle); ?>"
+                    data-last-title="<?php echo $count > 1 ? htmlspecialchars($lastTitle) : ''; ?>"
+                    data-id="<?php echo $borrow_id; ?>">
+                    <i class="fa-solid fa-check"></i> អនុម័ត
+            </button>
+
+
             </div>
         </div>
 
@@ -62,7 +91,7 @@ $details = $conn->query($query);
                             <div class="bg-white p-4 rounded">
                                 <div class="m-1 p-1">ចំណងជើងលិខិត</div>
                                 <?php if($detail->BTitle <> "") { ?>
-                                <span class="badge bg-primary rounded-pill fs-6"><?php echo $detail->BTitle ?></span>
+                                <span class="badge bg-primary rounded-pill fs-6" ><?php echo $detail->BTitle ?> </span>
                                 <?php } ?>
                             </div>
                         </div>
@@ -154,6 +183,24 @@ $details = $conn->query($query);
                     <hr style="height:5px;border:none;color:DodgerBlue;background-color:DodgerBlue;">
 
 
+                <div class="row pt-3">
+                    <div class="col">
+                        <h6><i class="fa-solid fa-user"></i> ស្នើសុំខ្ចីដោយ</h6>
+                        <hr>
+                        <ul>
+
+                            <li class="list-group-item py-2">ឈ្មោះ ៖
+                                <?php echo $detail -> LastName. ' '.$detail -> FirstName ?></li>
+                            <li class="list-group-item py-2">អង្គភាព ៖ <?php echo $detail -> Workplace ?></li>
+                            <li class="list-group-item py-2">កាលបរិច្ឆេទ ៖ <?php echo $detail -> DateBorrowed ?></li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+
 
                     <!-- Draggable Modal -->
                         <div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
@@ -212,6 +259,95 @@ $details = $conn->query($query);
 
 
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">បញ្ជាក់ ការបដិសេធ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span id="itemName"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">មិនព្រម</button>
+                <form action="<?php echo $burl . "/admin/requests/actions/delete.php"; ?>" method="POST" id="deleteForm">
+                    <input type="hidden" name="borrow_id" id="borrow_id" value="<?php echo $borrow_id; ?>">
+                    <button type="submit" class="btn btn-danger">បដិសេធ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script for delete confirmation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var confirmDeleteModal = document.getElementById('confirmDeleteModal');
+
+    confirmDeleteModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var firstTitle = button.getAttribute('data-first-title');
+        var lastTitle = button.getAttribute('data-last-title');
+
+        
+        var modalItemName = confirmDeleteModal.querySelector('#itemName');
+
+        // Check if there's a last title
+        if (lastTitle) {
+            modalItemName.innerHTML = `តើអ្នកចង់បដិសេធ ៖ ${firstTitle}<br>តើអ្នកចង់បដិសេធ ៖ ${lastTitle}`;
+        } else {
+            modalItemName.innerHTML = `តើអ្នកចង់បដិសេធ ៖ ${firstTitle}`;
+        }
+    });
+});
+
+</script>
+
+<!-- Approve Confirmation Modal -->
+<div class="modal fade" id="confirmAproveModal" tabindex="-1" aria-labelledby="confirmAproveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmAproveModalLabel">បញ្ជាក់ អនុមត់</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span id="itemName"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">មិនព្រម</button>
+                <form action="<?php echo $burl . '/admin/requests/actions/aprove.php'; ?>" method="POST" id="approveForm">
+                    <input type="hidden" name="borrow_id" id="borrow_id" value="<?php echo $borrow_id; ?>">
+                    <button type="submit" class="btn btn-danger">អនុម័ត</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script for approval confirmation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var confirmAproveModal = document.getElementById('confirmAproveModal');
+
+    confirmAproveModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var firstTitle = button.getAttribute('data-first-title');
+        var lastTitle = button.getAttribute('data-last-title');
+
+        var modalItemName = confirmAproveModal.querySelector('#itemName');
+
+        // Check if there's a last title
+        if (lastTitle) {
+            modalItemName.innerHTML = `តើអ្នកចង់អនុមត់ ៖ ${firstTitle}<br>តើអ្នកចង់អនុមត់ ៖ ${lastTitle}`;
+        } else {
+            modalItemName.innerHTML = `តើអ្នកចង់អនុមត់ ៖ ${firstTitle}`;
+        }
+    });
+});
+</script>
 
 
 

@@ -35,7 +35,7 @@
                 // Output the merged card for the previous BorrowCode
                 ?>
                 <div class="container-fluid">
-                    <a href="<?php echo $burl . "/admin/requests/view.php?borrow_id=" . $previousBorrowID ?>" class="card mb-3 card-hover" style="border-radius: 10px; text-decoration: none;">
+                    <a href="<?php echo $burl . "/admin/requests/view.php?borrow_code=" . $previousBorrowID ?>" class="card mb-3 card-hover" style="border-radius: 10px; text-decoration: none;">
                         <div class="row g-0">
                             <div class="col-md-10">
                                 <div class="card-body">
@@ -81,7 +81,7 @@
         if (!empty($bookTitles)) {
             ?>
             <div class="container-fluid">
-                <a href="<?php echo $burl . "/admin/requests/view.php?borrow_id=" . $previousBorrowID ?>" class="card mb-3 card-hover" style="border-radius: 10px; text-decoration: none;">
+                <a href="<?php echo $burl . "/admin/requests/view.php?borrow_code=" . $previousBorrowID ?>" class="card mb-3 card-hover" style="border-radius: 10px; text-decoration: none;">
                     <div class="row g-0">
                         <div class="col-md-10">
                             <div class="card-body">

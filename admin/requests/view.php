@@ -14,7 +14,7 @@ include($_SERVER['DOCUMENT_ROOT']."/library/admin/layouts/slidebar.php");
 
 
 // Fetch detail details
-$borrow_id = $_GET['borrow_id'];
+$borrow_code = $_GET['borrow_code'];
 
         $query = "SELECT 
         tblborrow.*,
@@ -29,28 +29,29 @@ $borrow_id = $_GET['borrow_id'];
     LEFT JOIN tblcategory ON tblsubcategory.CatID = tblcategory.CatID
     LEFT JOIN tbllanguage ON tblbook.LangID = tbllanguage.LangID
     LEFT JOIN tblguest ON tblguest.GuestID = tblborrow.GuestID  
-    WHERE tblborrow.BorrowCode = '$borrow_id'";
+    WHERE tblborrow.BorrowCode = '$borrow_code'";
 
 
 
+
+$getID = $conn->query($query)->fetch_object();
 
 $details = $conn->query($query);
 
 $com_del = $conn->query($query);
 
 
-// Start output buffering to capture concatenated titles
-        $firstTitle = '';
-        $lastTitle = '';
-        $count = 0;
 
-        while ($row = $com_del->fetch_object()) {
-            if ($count === 0) {
-                $firstTitle = $row->BTitle;
-            }
-            $lastTitle = $row->BTitle;
-            $count++;
-        }
+// Check the output of json_encode for debugging
+$allTitles = [];
+while ($row = $com_del->fetch_object()) {
+    $allTitles[] = $row->BTitle; // Collect each title
+}
+$allTitlesJson = json_encode($allTitles);
+
+// Debug: Output the JSON string to check for validity
+
+
 
 ?>
 
@@ -61,19 +62,21 @@ $com_del = $conn->query($query);
             </a>
             <div>
             <!-- Button to open the modal -->
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                    data-bs-target="#confirmDeleteModal"
-                    data-first-title="<?php echo htmlspecialchars($firstTitle); ?>"
-                    data-last-title="<?php echo $count > 1 ? htmlspecialchars($lastTitle) : ''; ?>"
-                    data-id="<?php echo $borrow_id; ?>">
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                    data-all-titles='<?php echo htmlspecialchars($allTitlesJson, ENT_QUOTES, 'UTF-8'); ?>'>
                 <i class="fa-solid fa-trash"></i> បដិសេធ
             </button>
+
+
+
+
+
 
             <button type="button" class="btn btn-success" data-bs-toggle="modal"
                     data-bs-target="#confirmAproveModal"
                     data-first-title="<?php echo htmlspecialchars($firstTitle); ?>"
                     data-last-title="<?php echo $count > 1 ? htmlspecialchars($lastTitle) : ''; ?>"
-                    data-id="<?php echo $borrow_id; ?>">
+                    data-id="<?php echo $borrow_code; ?>">
                     <i class="fa-solid fa-check"></i> អនុម័ត
             </button>
 
@@ -273,7 +276,7 @@ $com_del = $conn->query($query);
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">មិនព្រម</button>
                 <form action="<?php echo $burl . "/admin/requests/actions/delete.php"; ?>" method="POST" id="deleteForm">
-                    <input type="hidden" name="borrow_id" id="borrow_id" value="<?php echo $borrow_id; ?>">
+                    <input type="hidden" name="borrow_code" id="borrow_code" value="<?php echo $borrow_code; ?>">
                     <button type="submit" class="btn btn-danger">បដិសេធ</button>
                 </form>
             </div>
@@ -288,20 +291,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     confirmDeleteModal.addEventListener('show.bs.modal', function(event) {
         var button = event.relatedTarget;
-        var firstTitle = button.getAttribute('data-first-title');
-        var lastTitle = button.getAttribute('data-last-title');
+        try {
+            var allTitles = JSON.parse(button.getAttribute('data-all-titles')); // Parse the JSON string
+            var modalItemName = confirmDeleteModal.querySelector('#itemName');
 
-        
-        var modalItemName = confirmDeleteModal.querySelector('#itemName');
+            // Construct the content for the modal
+            var content = allTitles.map(function(title) {
+                return `តើអ្នកចង់បដិសេធ ៖ ${title}`;
+            }).join('<br>'); // Join titles with line breaks
 
-        // Check if there's a last title
-        if (lastTitle) {
-            modalItemName.innerHTML = `តើអ្នកចង់បដិសេធ ៖ ${firstTitle}<br>តើអ្នកចង់បដិសេធ ៖ ${lastTitle}`;
-        } else {
-            modalItemName.innerHTML = `តើអ្នកចង់បដិសេធ ៖ ${firstTitle}`;
+            // Set the content inside the modal
+            modalItemName.innerHTML = content;
+        } catch (error) {
+            console.error('Error parsing JSON:', error); // Log parsing errors
+            modalItemName.innerHTML = 'Error loading titles.';
         }
     });
 });
+
 
 </script>
 
@@ -319,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">មិនព្រម</button>
                 <form action="<?php echo $burl . '/admin/requests/actions/aprove.php'; ?>" method="POST" id="approveForm">
-                    <input type="hidden" name="borrow_id" id="borrow_id" value="<?php echo $borrow_id; ?>">
+                    <input type="hidden" name="borrow_code" id="borrow_code" value="<?php echo $borrow_code; ?>">
                     <button type="submit" class="btn btn-danger">អនុម័ត</button>
                 </form>
             </div>
@@ -344,6 +351,30 @@ document.addEventListener('DOMContentLoaded', function() {
             modalItemName.innerHTML = `តើអ្នកចង់អនុមត់ ៖ ${firstTitle}<br>តើអ្នកចង់អនុមត់ ៖ ${lastTitle}`;
         } else {
             modalItemName.innerHTML = `តើអ្នកចង់អនុមត់ ៖ ${firstTitle}`;
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    var     var confirmAproveModal = document.getElementById('confirmAproveModal');
+    = document.getElementById('confirmDeleteModal');
+
+    confirmDeleteModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        try {
+            var allTitles = JSON.parse(button.getAttribute('data-all-titles')); // Parse the JSON string
+            var modalItemName = confirmDeleteModal.querySelector('#itemName');
+
+            // Construct the content for the modal
+            var content = allTitles.map(function(title) {
+                return `តើអ្នកចង់បដិសេធ ៖ ${title}`;
+            }).join('<br>'); // Join titles with line breaks
+
+            // Set the content inside the modal
+            modalItemName.innerHTML = content;
+        } catch (error) {
+            console.error('Error parsing JSON:', error); // Log parsing errors
+            modalItemName.innerHTML = 'Error loading titles.';
         }
     });
 });

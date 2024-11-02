@@ -67,8 +67,8 @@
                                 </a>
                             </li>
                             <li class="nav-item my-3">
-                                <a href="<?php echo $burl . "/admin/borrow/" ?>"
-                                    class="nav-link text-white <?php echo $page == 'borrow' ? "active" : "" ?>">
+                                <a href="<?php echo $burl . "/admin/return/" ?>"
+                                    class="nav-link text-white <?php echo $page == 'return' ? "active" : "" ?>">
                                     <svg class="bi me-2" width="16" height="16">
                                         <use xlink:href="#people-circle"></use>
                                     </svg>

@@ -1,7 +1,7 @@
 <?php
 
 $title = "Detail Page";
-$page = "request";
+$page = "return";
 
 // Enable error reporting for debugging
 ini_set('display_errors', 1);
@@ -62,16 +62,16 @@ $allTitlesJson = json_encode($allTitles);
             </a>
             <div>
             <!-- Button to open the modal -->
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
                     data-all-titles='<?php echo htmlspecialchars($allTitlesJson, ENT_QUOTES, 'UTF-8'); ?>'>
-                <i class="fa-solid fa-check"></i> អនុម័ត
+                <i class="fa-solid fa-check"></i> សងសៀវភៅ
             </button>
 
 
 
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmAproveModal"
+            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#confirmAproveModal"
                     data-all-titles='<?php echo htmlspecialchars($allTitlesJson, ENT_QUOTES, 'UTF-8'); ?>'>
-                    <i class="fa-solid fa-check"></i> អនុម័ត
+                    <i class="fa-solid fa-check"></i> ខ្ចីបន្ដ
             </button>
 
 
